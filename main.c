@@ -1,6 +1,5 @@
 /******************************************************************************
-* File Name: main.c
-*
+* File Name:   main.c
 *
 * Description: This is the source code for the PSoC 6 MCU Cryptography: True
 * Random Number Generation Example for ModusToolbox.
@@ -8,7 +7,7 @@
 * Related Document: See Readme.md
 *
 *******************************************************************************
-* Copyright (2019), Cypress Semiconductor Corporation. All rights reserved.
+* (c) 2019-2020, Cypress Semiconductor Corporation. All rights reserved.
 *******************************************************************************
 * This software, including source code, documentation and related materials
 * ("Software"), is owned by Cypress Semiconductor Corporation or one of its
@@ -137,7 +136,7 @@ int main(void)
     for(;;)
     {
         /* Check if 'Enter' key was pressed */
-        if(cyhal_uart_getc(&cy_retarget_io_uart_obj, &uart_read_value, 1) == CY_RSLT_SUCCESS)
+        if (cyhal_uart_getc(&cy_retarget_io_uart_obj, &uart_read_value, 1) == CY_RSLT_SUCCESS)
         {
             if (uart_read_value == ASCII_RETURN_CARRIAGE)
             {
@@ -176,27 +175,27 @@ void generate_password()
     /* Initialize the TRNG generator block*/
     result = cyhal_trng_init(&trng_obj);
 
-    if(result == CY_RSLT_SUCCESS)
+    if (result == CY_RSLT_SUCCESS)
     {
-        for(index = 0; index < PASSWORD_LENGTH ; index++)
+        for (index = 0; index < PASSWORD_LENGTH; index++)
         {
             /* Generate a random number and truncate to a 7 bit number */
             random_val = cyhal_trng_generate(&trng_obj) & MAX_TRNG_VAL;
 
             /* Check if the generated random number is in the range of alpha-numeric,
             special characters ASCII codes. If not, convert to that range */
-            if(random_val < ASCII_ALPHANUMERIC_LOWER_LIMIT)
+            if (random_val < ASCII_ALPHANUMERIC_LOWER_LIMIT)
             {
                 random_val += ASCII_ALPHANUMERIC_LOWER_LIMIT;
             }
-            if(random_val >= ASCII_ALPHANUMERIC_UPPER_LIMIT)
+            else if (random_val >= ASCII_ALPHANUMERIC_UPPER_LIMIT)
             {
                 random_val -= ASCII_ALPHANUMERIC_LOWER_LIMIT;
             }
             password[index] = random_val;
         }
         /* Terminate the password with end of string character */
-        password[index]='\0';
+        password[index] = '\0';
 
         /* Display the generated password on the UART Terminal */
         printf("One-Time Password: %s\r\n\n",password);
