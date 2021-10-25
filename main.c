@@ -49,12 +49,11 @@
 * Macros
 ********************************************************************************/
 /* Macro for the maximum value of the random number generated in bits */
-#define MAX_TRNG_VAL                     (0x7F)
+#define ASCII_7BIT_MASK                 (0x7F)
 
-#define PASSWORD_LENGTH                  (8u)
-#define ASCII_ALPHANUMERIC_LOWER_LIMIT   (33u)
-#define ASCII_ALPHANUMERIC_UPPER_LIMIT   (127u)
-#define ASCII_RETURN_CARRIAGE            (0x0D)
+#define PASSWORD_LENGTH                 (8u)
+#define ASCII_VISIBLE_CHARACTER_START   (33u)
+#define ASCII_RETURN_CARRIAGE           (0x0D)
 
 #define SCREEN_HEADER "\r\n__________________________________________________"\
            "____________________________\r\n*\tPSoC 6 MCU Cryptography: "\
@@ -76,6 +75,7 @@
 * Function Prototypes
 ********************************************************************************/
 void generate_password();
+uint8_t check_range(uint8_t value);
 
 /*******************************************************************************
 * Global Variables
@@ -165,11 +165,11 @@ void generate_password()
 {
     int8_t index;
     uint32_t random_val;
-    
+    uint8_t temp_value = 0;
+
     /* Array to hold the generated password. Array size is inclusive of
        string NULL terminating character */
-    uint8_t password[PASSWORD_LENGTH + 1];
-
+    uint8_t password[PASSWORD_LENGTH + 1]= {0};
     cy_rslt_t result;
 
     cyhal_trng_t trng_obj;
@@ -179,23 +179,24 @@ void generate_password()
 
     if (result == CY_RSLT_SUCCESS)
     {
-        for (index = 0; index < PASSWORD_LENGTH; index++)
-        {
-            /* Generate a random number and truncate to a 7 bit number */
-            random_val = cyhal_trng_generate(&trng_obj) & MAX_TRNG_VAL;
 
-            /* Check if the generated random number is in the range of alpha-numeric,
-            special characters ASCII codes. If not, convert to that range */
-            if (random_val < ASCII_ALPHANUMERIC_LOWER_LIMIT)
+        for (index = 0; index < PASSWORD_LENGTH;)
+        {
+            /* Generate a random 32 bit number*/
+            random_val = cyhal_trng_generate(&trng_obj);
+
+            uint8_t bit_position  = 0;
+
+            for(int8_t j=0;j<4;j++)
             {
-                random_val += ASCII_ALPHANUMERIC_LOWER_LIMIT;
+                /* extract byte from the bit position offset 0, 8, 16, and 24. */
+                temp_value=((random_val>>bit_position )& ASCII_7BIT_MASK);
+                temp_value=check_range(temp_value);
+                password[index++] = temp_value;
+                bit_position  = bit_position  + 8;
             }
-            else if (random_val >= ASCII_ALPHANUMERIC_UPPER_LIMIT)
-            {
-                random_val -= ASCII_ALPHANUMERIC_LOWER_LIMIT;
-            }
-            password[index] = random_val;
-        }
+         }
+
         /* Terminate the password with end of string character */
         password[index] = '\0';
 
@@ -207,6 +208,17 @@ void generate_password()
         /* Free the TRNG generator block */
         cyhal_trng_free(&trng_obj);
     }
+}
+
+uint8_t check_range(uint8_t value)
+{
+    /* Check if the generated random number is in the range of alpha-numeric,
+     * special characters ASCII codes. If not, convert to that range */
+    if (value < ASCII_VISIBLE_CHARACTER_START)
+    {
+         value += ASCII_VISIBLE_CHARACTER_START;
+    }
+     return value;
 }
 
 /* [] END OF FILE */
