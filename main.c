@@ -1,14 +1,14 @@
 /******************************************************************************
 * File Name:   main.c
 *
-* Description: This is the source code for the PSoC 6 MCU Cryptography: True
+* Description: This is the source code for the HAL: MCU Cryptography: True
 * Random Number Generation Example for ModusToolbox.
 *
 * Related Document: See README.md
 *
 *
 *******************************************************************************
-* Copyright 2019-2021, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2022, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -40,11 +40,10 @@
 * so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
 
-#include "cy_pdl.h"
 #include "cyhal.h"
-#include "cybsp.h"
+#include "cybsp.h"  
 #include "cy_retarget_io.h"
-
+           
 /*******************************************************************************
 * Macros
 ********************************************************************************/
@@ -56,10 +55,10 @@
 #define ASCII_RETURN_CARRIAGE           (0x0D)
 
 #define SCREEN_HEADER "\r\n__________________________________________________"\
-           "____________________________\r\n*\tPSoC 6 MCU Cryptography: "\
+           "____________________________\r\n*\tHAL: MCU Cryptography: "\
            "True Random Number Generation\r\n*\r\n*\tThis code example "\
            "demonstrates generating a One-Time Password (OTP)\r\n*\tusing the"\
-           " True Random Number generation feature of PSoC 6 MCU\r\n*\t"\
+           " True Random Number generation feature of MCU\r\n*\t"\
            "cryptography block\r\n*\r\n*\tUART Terminal Settings\tBaud Rate:"\
            "115200 bps 8N1 \r\n*"\
            "\r\n__________________________________________________"\
@@ -88,7 +87,7 @@ extern cyhal_uart_t cy_retarget_io_uart_obj;
 uint8_t uart_read_value;
 
 /*******************************************************************************
-* Function Name: main
+* Function Name: main 
 ********************************************************************************
 * Summary:
 * This is the main function for CM4 CPU. It configures the Crypto block to 
@@ -210,10 +209,22 @@ void generate_password()
     }
 }
 
+/*******************************************************************************
+* Function Name: check_range
+********************************************************************************
+* Summary: This function check if the generated random number is in the 
+*          range of alpha-numeric, special characters ASCII codes.  
+*          If not, convert to that range
+*
+* Parameters:
+*  uint8_t
+*
+* Return
+*  uint8_t 
+*
+*******************************************************************************/
 uint8_t check_range(uint8_t value)
 {
-    /* Check if the generated random number is in the range of alpha-numeric,
-     * special characters ASCII codes. If not, convert to that range */
     if (value < ASCII_VISIBLE_CHARACTER_START)
     {
          value += ASCII_VISIBLE_CHARACTER_START;
